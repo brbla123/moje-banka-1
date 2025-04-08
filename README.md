@@ -117,6 +117,17 @@
   <input type="text" id="username" placeholder="Uživatelské jméno" />
   <input type="password" id="password" placeholder="Heslo" />
   <button onclick="login()">Přihlásit se</button>
+  <button onclick="showRegisterPage()">Registrace</button>
+</div>
+
+<!-- Registration Page -->
+<div class="container hidden" id="registerPage">
+  <h2>Registrace</h2>
+  <input type="text" id="newUsername" placeholder="Uživatelské jméno" />
+  <input type="password" id="newPassword" placeholder="Heslo" />
+  <input type="text" id="newAccountName" placeholder="Název účtu" />
+  <button onclick="register()">Registrovat</button>
+  <button onclick="showLoginPage()">Zpět na přihlášení</button>
 </div>
 
 <!-- Bank Page -->
@@ -174,33 +185,59 @@
 </div>
 
 <script>
-  let accounts = {
-    current: { name: 'Běžný účet', balance: 10000 },
-    savings: { name: 'Spořící účet', balance: 50000 }
-  };
-  let currentAccount = "current";
+  let accounts = {};
+  let currentAccount = null;
   let isAdmin = false;
+  let users = [];
 
+  // Přepnutí mezi stránkami (přihlášení, registrace)
+  function showRegisterPage() {
+    document.getElementById('loginPage').classList.add('hidden');
+    document.getElementById('registerPage').classList.remove('hidden');
+  }
+
+  function showLoginPage() {
+    document.getElementById('loginPage').classList.remove('hidden');
+    document.getElementById('registerPage').classList.add('hidden');
+  }
+
+  // Registrace nového uživatele
+  function register() {
+    const username = document.getElementById('newUsername').value.trim();
+    const password = document.getElementById('newPassword').value.trim();
+    const accountName = document.getElementById('newAccountName').value.trim();
+
+    if (username && password && accountName) {
+      const newUser = {
+        username,
+        password,
+        accounts: {
+          [accountName]: { name: accountName, balance: 0 }
+        }
+      };
+      users.push(newUser);
+      alert("Registrace úspěšná!");
+      showLoginPage();
+    } else {
+      alert("Vyplňte všechny údaje.");
+    }
+  }
+
+  // Přihlášení uživatele
   function login() {
     const username = document.getElementById('username').value.trim();
     const password = document.getElementById('password').value.trim();
-    
-    // Admin login (tady si můžeš přidat svou logiku pro admin přihlášení)
-    if (username === 'admin' && password === 'admin123') {
-      isAdmin = true;
-      document.getElementById('adminPage').classList.remove('hidden');
-      document.getElementById('loginPage').classList.add('hidden');
-      updateAccountList();
-      return;
-    }
-    
-    if (username && password) {
+
+    const user = users.find(user => user.username === username && user.password === password);
+
+    if (user) {
+      currentAccount = user.accounts;
       document.getElementById('bankPage').classList.remove('hidden');
       document.getElementById('loginPage').classList.add('hidden');
       updateAccountList();
       updateBalance();
     } else {
-      alert('Zadejte uživatelské jméno a heslo!');
+      alert("Chybný uživatel nebo heslo.");
     }
   }
 
@@ -215,31 +252,60 @@
 
   function updateAccountList() {
     const accountSelect = document.getElementById('accountSelect');
-    const adminAccountSelect = document.getElementById('adminAccountSelect');
-    
     accountSelect.innerHTML = '';
-    adminAccountSelect.innerHTML = '';
-    
-    for (const key in accounts) {
+    for (const account in currentAccount) {
       const option = document.createElement('option');
-      option.value = key;
-      option.textContent = accounts[key].name;
+      option.value = account;
+      option.textContent = currentAccount[account].name;
       accountSelect.appendChild(option);
-      
-      const adminOption = document.createElement('option');
-      adminOption.value = key;
-      adminOption.textContent = accounts[key].name;
-      adminAccountSelect.appendChild(adminOption);
     }
   }
 
   function updateBalance() {
     const balanceEl = document.getElementById('balance');
-    balanceEl.innerText = `Zůstatek: ${accounts[currentAccount].balance.toLocaleString('cs-CZ')} Kč`;
+    const accountName = document.getElementById('accountSelect').value;
+    const balance = currentAccount[accountName].balance;
+    balanceEl.innerText = `Zůstatek: ${balance.toLocaleString('cs-CZ')} Kč`;
   }
 
   function sendMoney() {
     const amount = parseFloat(document.getElementById('amount').value);
     const recipient = document.getElementById('recipient').value.trim();
+    const accountName = document.getElementById('accountSelect').value;
+
     if (isNaN(amount) || amount <= 0 || recipient === "") {
-      alert('Zade
+      alert('Zadejte správnou částku a příjemce.');
+      return;
+    }
+
+    if (amount > currentAccount[accountName].balance) {
+      alert('Nemáte dostatek peněz.');
+      return;
+    }
+
+    currentAccount[accountName].balance -= amount;
+    updateBalance();
+    addHistory(`Odesláno ${amount.toLocaleString('cs-CZ')} Kč příjemci ${recipient}`);
+    document.getElementById('amount').value = '';
+    document.getElementById('recipient').value = '';
+  }
+
+  function addHistory(text) {
+    const list = document.getElementById('historyList');
+    const item = document.createElement('li');
+    item.innerText = text;
+    list.prepend(item);
+  }
+
+  function switchAccount() {
+    const accountName = document.getElementById('accountSelect').value;
+    updateBalance();
+  }
+
+  function toggleDarkMode() {
+    document.body.classList.toggle('dark-mode');
+  }
+</script>
+
+</body>
+</html>
