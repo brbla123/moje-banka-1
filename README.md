@@ -75,10 +75,6 @@
     const storedUsers = localStorage.getItem('users');
     if (storedUsers) {
       users = JSON.parse(storedUsers);
-    } else {
-      // Pokud není v LocalStorage žádný uživatel, vytvoříme admina
-      users['admin'] = { password: '1', balance: 100000, transactions: [] };
-      saveUsersToLocalStorage();
     }
   }
 
@@ -221,7 +217,6 @@
       users[accountName].balance += amount;
       saveUsersToLocalStorage(); // Uložení změn do LocalStorage
       updateBalance();
-      alert('Peněžitý zůstatek byl úspěšně přidán.');
       document.getElementById('adminAmount').value = '';
     } else {
       alert('Zadejte platné jméno účtu a částku.');
@@ -239,5 +234,4 @@
 
 </body>
 </html>
-
 
