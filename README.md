@@ -6,6 +6,7 @@
   <title>Moje Banka</title>
   <link rel="icon" href="https://cdn-icons-png.flaticon.com/512/190/190411.png" type="image/png">
   <style>
+    /* Styling remains the same as previous code */
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { font-family: 'Arial', sans-serif; background: #f0f4f8; display: flex; justify-content: center; align-items: center; height: 100vh; flex-direction: column; }
     .container { background: #fff; border-radius: 15px; padding: 30px; box-shadow: 0 10px 20px rgba(0,0,0,0.1); width: 350px; margin: 10px; }
