@@ -18,6 +18,7 @@
       justify-content: center;
       align-items: center;
       height: 100vh;
+      flex-direction: column;
     }
     .container {
       background: #fff;
@@ -26,6 +27,7 @@
       box-shadow: 0 10px 20px rgba(0,0,0,0.1);
       width: 350px;
       animation: fadeIn 0.5s ease-in-out;
+      margin: 10px;
     }
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(-20px); }
@@ -93,10 +95,23 @@
       background-color: #34495e;
       color: white;
     }
+    .admin-section {
+      background-color: #ecf0f1;
+      padding: 20px;
+      border-radius: 10px;
+      margin-top: 20px;
+    }
+    .slide {
+      display: none;
+    }
+    .slide.active {
+      display: block;
+    }
   </style>
 </head>
 <body>
 
+<!-- Login Page -->
 <div class="container" id="loginPage">
   <h2>Přihlášení</h2>
   <input type="text" id="username" placeholder="Uživatelské jméno" />
@@ -104,14 +119,15 @@
   <button onclick="login()">Přihlásit se</button>
 </div>
 
+<!-- Bank Page -->
 <div class="container hidden" id="bankPage">
   <h2>Moje Banka</h2>
   <div>
     <label for="accountSelect">Účet:</label>
     <select id="accountSelect" onchange="switchAccount()">
-      <option value="current">Běžný účet</option>
-      <option value="savings">Spořící účet</option>
+      <!-- Dynamicky se zde budou zobrazovat účty -->
     </select>
+    <button onclick="addAccount()">Přidat nový účet</button>
   </div>
   <div class="balance" id="balance">Zůstatek: 10 000 Kč</div>
   <input type="number" id="amount" placeholder="Částka k odeslání" />
@@ -125,19 +141,63 @@
   </div>
 </div>
 
+<!-- Admin Page -->
+<div class="container hidden" id="adminPage">
+  <h2>Admin Menu</h2>
+  <div class="admin-section">
+    <h3>Přidat peníze na účet</h3>
+    <select id="adminAccountSelect">
+      <!-- Dynamicky se zde budou zobrazovat účty pro admina -->
+    </select>
+    <input type="number" id="adminAmount" placeholder="Částka k přidání" />
+    <button onclick="addMoneyToAccount()">Přidat peníze</button>
+  </div>
+  <div class="admin-section">
+    <h3>Přidat informaci</h3>
+    <textarea id="adminMessage" placeholder="Napište novou informaci..."></textarea>
+    <button onclick="addInformation()">Přidat informaci</button>
+  </div>
+  <div class="admin-section">
+    <h3>Spravovat slajdy</h3>
+    <button onclick="showSlide('slide1')">Zobrazit Slide 1</button>
+    <button onclick="showSlide('slide2')">Zobrazit Slide 2</button>
+    <div class="slide" id="slide1">
+      <h4>Slide 1 - Bankovní Přehled</h4>
+      <p>Informace o účtech a transakcích.</p>
+    </div>
+    <div class="slide" id="slide2">
+      <h4>Slide 2 - Admin Funkce</h4>
+      <p>Správa účtů a peněz pro admina.</p>
+    </div>
+  </div>
+  <button onclick="logout()">Odhlásit se</button>
+</div>
+
 <script>
   let accounts = {
-    current: 100000000,
-    savings: 50000
+    current: { name: 'Běžný účet', balance: 10000 },
+    savings: { name: 'Spořící účet', balance: 50000 }
   };
   let currentAccount = "current";
+  let isAdmin = false;
 
   function login() {
     const username = document.getElementById('username').value.trim();
     const password = document.getElementById('password').value.trim();
-    if (username && password) {
+    
+    // Admin login (tady si můžeš přidat svou logiku pro admin přihlášení)
+    if (username === 'admin' && password === 'admin123') {
+      isAdmin = true;
+      document.getElementById('adminPage').classList.remove('hidden');
       document.getElementById('loginPage').classList.add('hidden');
+      updateAccountList();
+      return;
+    }
+    
+    if (username && password) {
       document.getElementById('bankPage').classList.remove('hidden');
+      document.getElementById('loginPage').classList.add('hidden');
+      updateAccountList();
       updateBalance();
     } else {
       alert('Zadejte uživatelské jméno a heslo!');
@@ -147,50 +207,39 @@
   function logout() {
     document.getElementById('loginPage').classList.remove('hidden');
     document.getElementById('bankPage').classList.add('hidden');
+    document.getElementById('adminPage').classList.add('hidden');
     document.getElementById('username').value = '';
     document.getElementById('password').value = '';
     document.getElementById('historyList').innerHTML = '';
   }
 
+  function updateAccountList() {
+    const accountSelect = document.getElementById('accountSelect');
+    const adminAccountSelect = document.getElementById('adminAccountSelect');
+    
+    accountSelect.innerHTML = '';
+    adminAccountSelect.innerHTML = '';
+    
+    for (const key in accounts) {
+      const option = document.createElement('option');
+      option.value = key;
+      option.textContent = accounts[key].name;
+      accountSelect.appendChild(option);
+      
+      const adminOption = document.createElement('option');
+      adminOption.value = key;
+      adminOption.textContent = accounts[key].name;
+      adminAccountSelect.appendChild(adminOption);
+    }
+  }
+
   function updateBalance() {
     const balanceEl = document.getElementById('balance');
-    balanceEl.innerText = `Zůstatek: ${accounts[currentAccount].toLocaleString('cs-CZ')} Kč`;
+    balanceEl.innerText = `Zůstatek: ${accounts[currentAccount].balance.toLocaleString('cs-CZ')} Kč`;
   }
 
   function sendMoney() {
     const amount = parseFloat(document.getElementById('amount').value);
     const recipient = document.getElementById('recipient').value.trim();
     if (isNaN(amount) || amount <= 0 || recipient === "") {
-      alert('Zadejte správnou částku a příjemce.');
-      return;
-    }
-    if (amount > accounts[currentAccount]) {
-      alert('Nemáte dostatek peněz.');
-      return;
-    }
-    accounts[currentAccount] -= amount;
-    updateBalance();
-    addHistory(`Odesláno ${amount.toLocaleString('cs-CZ')} Kč příjemci ${recipient}`);
-    document.getElementById('amount').value = '';
-    document.getElementById('recipient').value = '';
-  }
-
-  function addHistory(text) {
-    const list = document.getElementById('historyList');
-    const item = document.createElement('li');
-    item.innerText = text;
-    list.prepend(item);
-  }
-
-  function switchAccount() {
-    currentAccount = document.getElementById('accountSelect').value;
-    updateBalance();
-  }
-
-  function toggleDarkMode() {
-    document.body.classList.toggle('dark-mode');
-  }
-</script>
-
-</body>
-</html>
+      alert('Zade
