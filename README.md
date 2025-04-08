@@ -14,7 +14,6 @@
     button { background-color: #3498db; color: white; border: none; cursor: pointer; font-weight: bold; transition: background 0.3s; }
     button:hover { background-color: #2980b9; }
     .balance { font-size: 1.5em; margin: 20px 0; color: #333; font-weight: bold; }
-    .hidden { display: none; }
   </style>
 </head>
 <body>
@@ -240,4 +239,5 @@
 
 </body>
 </html>
+
 
