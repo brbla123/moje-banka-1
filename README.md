@@ -343,7 +343,9 @@
 
     const slide = document.getElementById(slideId);
     slide.classList.add('active');
-  }
+ <input type="checkbox" id="isAdminCheckbox" checked /> Chci být administrátor
+
+ }
 </script>
 
 </body>
