@@ -127,7 +127,7 @@
 
 <script>
   let accounts = {
-    current: 10000,
+    current: 100000000,
     savings: 50000
   };
   let currentAccount = "current";
