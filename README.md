@@ -120,16 +120,6 @@
   <button onclick="showRegisterPage()">Registrace</button>
 </div>
 
-<!-- Register Page -->
-<div class="container hidden" id="registerPage">
-  <h2>Registrace</h2>
-  <input type="text" id="newUsername" placeholder="Uživatelské jméno" />
-  <input type="password" id="newPassword" placeholder="Heslo" />
-  <input type="password" id="confirmPassword" placeholder="Potvrďte heslo" />
-  <button onclick="register()">Registrovat</button>
-  <button onclick="showLoginPage()">Zpět na přihlášení</button>
-</div>
-
 <!-- Bank Page -->
 <div class="container hidden" id="bankPage">
   <h2>Moje Banka</h2>
@@ -184,35 +174,16 @@
 <script>
   let users = {}; // Objekt pro uchovávání všech uživatelů
   let currentUser = null;
-
-  // Funkce pro přepnutí na přihlašovací stránku
-  function showLoginPage() {
-    document.getElementById('registerPage').classList.add('hidden');
-    document.getElementById('loginPage').classList.remove('hidden');
-  }
-
-  // Funkce pro přepnutí na registrační stránku
-  function showRegisterPage() {
-    document.getElementById('loginPage').classList.add('hidden');
-    document.getElementById('registerPage').classList.remove('hidden');
-  }
-
+  
   // Funkce pro registraci
-  function register() {
-    const username = document.getElementById('newUsername').value.trim();
-    const password = document.getElementById('newPassword').value.trim();
-    const confirmPassword = document.getElementById('confirmPassword').value.trim();
-
-    if (username && password && confirmPassword && password === confirmPassword) {
-      if (users[username]) {
-        alert("Toto uživatelské jméno je již zaregistrováno.");
-      } else {
-        users[username] = { password: password, balance: 10000, transactions: [] };
-        alert("Registrace úspěšná! Můžete se přihlásit.");
-        showLoginPage();
-      }
+  function showRegisterPage() {
+    const username = prompt("Zadejte uživatelské jméno:");
+    const password = prompt("Zadejte heslo:");
+    if (username && password) {
+      users[username] = { password: password, balance: 10000, transactions: [] };
+      alert("Registrace úspěšná! Můžete se přihlásit.");
     } else {
-      alert("Zkontrolujte, zda jsou všechna pole správně vyplněná.");
+      alert("Zadejte platné údaje.");
     }
   }
 
@@ -224,10 +195,8 @@
     if (users[username] && users[username].password === password) {
       currentUser = username;
       document.getElementById('loginPage').classList.add('hidden');
-      document.getElementById('registerPage').classList.add('hidden');
       document.getElementById('bankPage').classList.remove('hidden');
       updateBalance();
-      updateAccountSelect();
       if (currentUser === 'admin') {
         document.getElementById('adminPage').classList.remove('hidden');
       } else {
@@ -253,27 +222,6 @@
     if (currentUser) {
       const balance = users[currentUser].balance;
       document.getElementById('balance').innerText = `Zůstatek: ${balance.toLocaleString('cs-CZ')} Kč`;
-    }
-  }
-
-  // Funkce pro zobrazení seznamu účtů v selectu
-  function updateAccountSelect() {
-    const accountSelect = document.getElementById('accountSelect');
-    accountSelect.innerHTML = ''; // Vyprázdní seznam
-    for (const user in users) {
-      const option = document.createElement('option');
-      option.value = user;
-      option.textContent = user;
-      accountSelect.appendChild(option);
-    }
-  }
-
-  // Funkce pro přepnutí účtu
-  function switchAccount() {
-    const accountName = document.getElementById('accountSelect').value;
-    if (accountName) {
-      currentUser = accountName;
-      updateBalance();
     }
   }
 
@@ -343,12 +291,9 @@
     slides.forEach(slide => slide.classList.remove('active'));
     document.getElementById(slideId).classList.add('active');
   }
-
-  // Funkce pro přepnutí mezi světlým a tmavým režimem
-  function toggleDarkMode() {
-    document.body.classList.toggle('dark-mode');
-  }
 </script>
 
 </body>
 </html>
+
+
