@@ -120,6 +120,16 @@
   <button onclick="showRegisterPage()">Registrace</button>
 </div>
 
+<!-- Register Page -->
+<div class="container hidden" id="registerPage">
+  <h2>Registrace</h2>
+  <input type="text" id="newUsername" placeholder="Uživatelské jméno" />
+  <input type="password" id="newPassword" placeholder="Heslo" />
+  <input type="password" id="confirmPassword" placeholder="Potvrďte heslo" />
+  <button onclick="register()">Registrovat</button>
+  <button onclick="showLoginPage()">Zpět na přihlášení</button>
+</div>
+
 <!-- Bank Page -->
 <div class="container hidden" id="bankPage">
   <h2>Moje Banka</h2>
@@ -174,16 +184,35 @@
 <script>
   let users = {}; // Objekt pro uchovávání všech uživatelů
   let currentUser = null;
-  
-  // Funkce pro registraci
+
+  // Funkce pro přepnutí na přihlašovací stránku
+  function showLoginPage() {
+    document.getElementById('registerPage').classList.add('hidden');
+    document.getElementById('loginPage').classList.remove('hidden');
+  }
+
+  // Funkce pro přepnutí na registrační stránku
   function showRegisterPage() {
-    const username = prompt("Zadejte uživatelské jméno:");
-    const password = prompt("Zadejte heslo:");
-    if (username && password) {
-      users[username] = { password: password, balance: 10000, transactions: [] };
-      alert("Registrace úspěšná! Můžete se přihlásit.");
+    document.getElementById('loginPage').classList.add('hidden');
+    document.getElementById('registerPage').classList.remove('hidden');
+  }
+
+  // Funkce pro registraci
+  function register() {
+    const username = document.getElementById('newUsername').value.trim();
+    const password = document.getElementById('newPassword').value.trim();
+    const confirmPassword = document.getElementById('confirmPassword').value.trim();
+
+    if (username && password && confirmPassword && password === confirmPassword) {
+      if (users[username]) {
+        alert("Toto uživatelské jméno je již zaregistrováno.");
+      } else {
+        users[username] = { password: password, balance: 10000, transactions: [] };
+        alert("Registrace úspěšná! Můžete se přihlásit.");
+        showLoginPage();
+      }
     } else {
-      alert("Zadejte platné údaje.");
+      alert("Zkontrolujte, zda jsou všechna pole správně vyplněná.");
     }
   }
 
@@ -195,6 +224,7 @@
     if (users[username] && users[username].password === password) {
       currentUser = username;
       document.getElementById('loginPage').classList.add('hidden');
+      document.getElementById('registerPage').classList.add('hidden');
       document.getElementById('bankPage').classList.remove('hidden');
       updateBalance();
       updateAccountSelect();
